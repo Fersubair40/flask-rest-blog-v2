@@ -1,14 +1,22 @@
 import datetime
+import random
+import string
 from passlib.hash import pbkdf2_sha256 as sha256
 
 from . import db
 from .blog import BlogModel
 
 
+def random_string_digits(string_length=8):
+    letter_and_digits = string.ascii_letters + string.digits
+    return ''.join(random.choice(letter_and_digits) for i in range(string_length))
+
+
 class UserModel(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String)
     email = db.Column(db.String(120), nullable=False, unique=True)
     username = db.Column(db.String(120), nullable=False, unique=True)
     fullname = db.Column(db.String(120), nullable=False)
@@ -21,6 +29,7 @@ class UserModel(db.Model):
 
     def __init__(self, email, username, fullname, password, role):
         self.email = email
+        self.slug = random_string_digits()
         self.username = username
         self.fullname = fullname
         self.password = password
@@ -31,11 +40,18 @@ class UserModel(db.Model):
     def json(self):
         return {
             "id": self.id,
+            "slug": self.slug,
             "email": self.email,
             "username": self.username,
             "fullname": self.fullname,
             "role": self.role,
             "blogposts": [blog.json() for blog in self.blogposts.all()]
+        }
+
+    def blog_json(self):
+        return {
+            "slug": self.slug,
+            "blogpost": [blog.json for blog in self.blogposts.all()]
         }
 
     def save(self):
@@ -67,9 +83,13 @@ class UserModel(db.Model):
         return UserModel.query.filter_by(email=value).first()
 
     @staticmethod
-    def find_by_id(value):
-        return  UserModel.query.filter_by(username=value).first()
+    def find_by_username(value):
+        return UserModel.query.filter_by(username=value).first()
 
     @staticmethod
-    def get_all_users():
-        return  UserModel.query.all()
+    def find_by_id(_id):
+        return UserModel.query.filter_by(slug=_id).first()
+
+    @staticmethod
+    def get_all_users(value):
+        return UserModel.query.filter_by(role=value).all()
