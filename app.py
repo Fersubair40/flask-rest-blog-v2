@@ -13,7 +13,7 @@ from models.user import UserModel
 app = Flask(__name__)
 CORS(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgres://gagrijnhqfqlry:b7bade7a7c2076a4859ef45ae2448dfd7bddc6ac4b0b53d850e2020b54e77a60@ec2-54-247-103-43.eu-west-1.compute.amazonaws.com:5432/degktc7jdkglm8"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key = os.environ.get("JWT_SECRET_KEY") or "JWT_SECRET_KEY"
