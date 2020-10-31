@@ -3,7 +3,9 @@ from functools import wraps
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import create_access_token, create_refresh_token, \
     jwt_refresh_token_required, get_jwt_identity, jwt_required, \
-    get_raw_jwt, get_jti, get_jwt_claims, get_current_user, current_user, verify_jwt_in_request
+    get_raw_jwt, get_jti, get_jwt_claims, current_user, verify_jwt_in_request
+from flask_cors import  cross_origin
+
 from models.user import UserModel
 from sqlalchemy.exc import DataError
 
@@ -65,9 +67,12 @@ class GetAllUser(Resource):
     @admin_required
     def get(self):
         users = [user.json() for user in UserModel.get_all_users("User")]
-        admin_users = [user.json() for user in UserModel.get_all_users("Super Admin")]
-
-        return {"users": users, "admin": admin_users}, 200
+        super_admin_users = [user.json() for user in UserModel.get_all_users("Super Admin")]
+        admin_user = [user.json() for user in UserModel.get_all_users("Admin")]
+        if current_user.role == "Admin":
+            return {"users": users, "admin": admin_user}, 200
+        else:
+            return {"users": users, "admin": admin_user, "super admin": super_admin_users}, 200
 
 
 class User(Resource):
@@ -83,10 +88,10 @@ class UserId(Resource):
         return user.json(), 200
 
 
-class UserBlogPosts(Resource):
-    @jwt_required
-    def get(self):
-        return current_user.blog_json(), 200
+# class UserBlogPosts(Resource):
+#     @jwt_required
+#     def get(self):
+#         return current_user.blog_json(), 200
 
 
 class UserLogin(Resource):
@@ -110,7 +115,7 @@ class UserLogin(Resource):
                        "access_token": access_token,
                        "refresh_token": refresh_token,
                        "Message": "Login Successful"
-                   }, 201
+                   }, 200
         else:
             return {"message": "Wrong Credentials"}, 401
 

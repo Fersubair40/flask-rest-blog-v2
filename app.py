@@ -3,16 +3,20 @@ from flask import Flask
 from flask_restful import Api, Resource
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_cors import CORS
 
 from models import db
-from resources.user import UserRegister, UserLogin, GetAllUser, TokenRefresh, User, UserId, AdminLogin, UserBlogPosts
+from resources.user import UserRegister, UserLogin, GetAllUser, TokenRefresh, User, UserId, AdminLogin
+from resources.blog import CreateBlog, UserBlogPosts
 from models.user import UserModel
 
 app = Flask(__name__)
+CORS(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL') or "postgres://postgres:subair@localhost/blog-db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.environ.get("JWT_SECRET_KEY")
+app.config['CORS_HEADERS'] = 'Content-Type'
+app.secret_key = os.environ.get("JWT_SECRET_KEY") or "JWT_SECRET_KEY"
 app.config['PROPAGATE_EXCEPTIONS'] = True
 api = Api(app)
 jwt = JWTManager(app)
@@ -83,6 +87,7 @@ api.add_resource(User, "/user/me")
 api.add_resource(UserId, "/user/<string:user_id>")
 api.add_resource(AdminLogin, "/admin/login")
 api.add_resource(UserBlogPosts, "/user/blogs")
+api.add_resource(CreateBlog, "/<string:user_slug>/blog")
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

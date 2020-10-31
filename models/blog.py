@@ -1,18 +1,18 @@
-import  datetime
+import datetime
 
-from . import  db
+from . import db
 
 
 class BlogModel(db.Model):
     __tablename__ = "blogs"
 
-    id = db.Column(db.Integer,primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime)
     modified_at = db.Column(db.DateTime)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = db.Column(db.String, db.ForeignKey("users.slug"))
 
     def __init__(self, title, content, user_id):
         self.title = title
@@ -45,9 +45,8 @@ class BlogModel(db.Model):
 
     @staticmethod
     def find_by_id(id):
-        return  BlogModel.query.get(id)
+        return BlogModel.query.get(id)
 
     @staticmethod
     def get_all_blog():
-        return  BlogModel.query.all()
-
+        return BlogModel.query.all()

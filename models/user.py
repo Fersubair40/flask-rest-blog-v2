@@ -15,8 +15,8 @@ def random_string_digits(string_length=8):
 class UserModel(db.Model):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    slug = db.Column(db.String)
+    id = db.Column(db.Integer)
+    slug = db.Column(db.String, primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     username = db.Column(db.String(120), nullable=False, unique=True)
     fullname = db.Column(db.String(120), nullable=False)
@@ -39,8 +39,7 @@ class UserModel(db.Model):
 
     def json(self):
         return {
-            "id": self.id,
-            "slug": self.slug,
+            "id": self.slug,
             "email": self.email,
             "username": self.username,
             "fullname": self.fullname,
@@ -50,8 +49,9 @@ class UserModel(db.Model):
 
     def blog_json(self):
         return {
+            "username": self.username,
             "slug": self.slug,
-            "blogpost": [blog.json for blog in self.blogposts.all()]
+            "blogpost": [blog.json() for blog in self.blogposts.all()]
         }
 
     def save(self):
@@ -93,3 +93,5 @@ class UserModel(db.Model):
     @staticmethod
     def get_all_users(value):
         return UserModel.query.filter_by(role=value).all()
+
+
