@@ -1,6 +1,7 @@
 *.pyc
 .DS_Store
-__pycache__/
-migrations/
+__pycache__
+migrations
 venv/
 .env
+.idea
