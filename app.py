@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask_restful import Api, Resource
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, current_user, jwt_required
 from flask_migrate import Migrate
 from flask_cors import CORS
 
@@ -75,7 +75,7 @@ def revoked_token_callback():
 
 class Index(Resource):
     def get(self):
-        return {"msg": "Hello"}, 200
+        return {"hello":"hello"}
 
 
 api.add_resource(Index, '/')
