@@ -4,7 +4,7 @@ from flask_script import Manager
 from models.user import UserModel
 from models.blog import BlogModel
 
-from app import  app, db
+from app import app, db
 
 migrate = Migrate(app=app, db=db)
 manager = Manager(app=app)
