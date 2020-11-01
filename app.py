@@ -90,4 +90,7 @@ api.add_resource(UserBlogPosts, "/user/blogs")
 api.add_resource(CreateBlog, "/<string:user_slug>/blog")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    @app.before_first_request
+    def create_tables():
+        db.create_all()
+    app.run()
