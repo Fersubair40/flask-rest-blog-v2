@@ -75,8 +75,8 @@ class UserModel(db.Model):
         return sha256.hash(password)
 
     @staticmethod
-    def verify_password(password, hash):
-        return sha256.verify(password, hash)
+    def verify_password(password, password_hash):
+        return sha256.verify(password, password_hash)
 
     @staticmethod
     def find_by_email(value):

@@ -4,7 +4,7 @@ from flask_restful import Resource, reqparse
 from flask_jwt_extended import create_access_token, create_refresh_token, \
     jwt_refresh_token_required, get_jwt_identity, jwt_required, \
     get_raw_jwt, get_jti, get_jwt_claims, current_user, verify_jwt_in_request
-from flask_cors import  cross_origin
+from flask_cors import cross_origin
 
 from models.user import UserModel
 from sqlalchemy.exc import DataError
@@ -15,6 +15,7 @@ _user_parser.add_argument("fullname", type=str)
 _user_parser.add_argument('username', type=str)
 _user_parser.add_argument("password", type=str)
 _user_parser.add_argument("role", type=str)
+_user_parser.add_argument("slug", type=str)
 
 
 class UserRegister(Resource):
@@ -59,8 +60,17 @@ def admin_required(fn):
         if "Admin" not in current_user.role:
             return {'message': 'only admin can access this resource'}
         return fn(*args, **kwargs)
-
     return secure_func
+
+
+def is_activated(fn):
+    @wraps(fn)
+    def activate(*args, **kwargs):
+        verify_jwt_in_request()
+        if not current_user.activated:
+            return {'message':"user not  activated"}
+        return fn(*args, **kwargs)
+    return activate()
 
 
 class GetAllUser(Resource):
@@ -127,7 +137,7 @@ class AdminLogin(Resource):
         password = data["password"]
         current_user = UserModel.find_by_email(email)
         if "Admin" not in current_user.role:
-            return {"message":"Not Authorized"}, 401
+            return {"message": "Not Authorized"}, 401
         if not email or email == '':
             return {"message": "Email is Required"}, 400
         if not password or password == '':
@@ -152,3 +162,14 @@ class TokenRefresh(Resource):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user.username, fresh=False)
         return {'access_token': new_token}, 200
+
+
+class UserActivate(Resource):
+    @jwt_required
+    def post(self):
+        data = _user_parser.parse_args()
+        slug = data["slug"]
+        if current_user.slug != slug:
+            return {"message": "invalid token"}, 401
+        else:
+            return {"message": "Account verified"}, 200

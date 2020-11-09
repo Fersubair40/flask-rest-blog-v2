@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 
 
-from resources.user import UserRegister, UserLogin, GetAllUser, TokenRefresh, User, UserId, AdminLogin
+from resources.user import UserRegister, UserLogin, GetAllUser, TokenRefresh, User, UserId, AdminLogin, UserActivate
 from resources.blog import CreateBlog, UserBlogPosts
 from models.user import UserModel
 
@@ -88,6 +88,7 @@ api.add_resource(UserId, "/user/<string:user_id>")
 api.add_resource(AdminLogin, "/admin/login")
 api.add_resource(UserBlogPosts, "/user/blogs")
 api.add_resource(CreateBlog, "/<string:user_slug>/blog")
+api.add_resource(UserActivate, "/activate")
 
 if __name__ == '__main__':
     from models import db
